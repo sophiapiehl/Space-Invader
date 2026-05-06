@@ -1,4 +1,5 @@
 Imports System
+Imports Microsoft.VisualBasic
 
 
 Module Module1
@@ -7,6 +8,7 @@ Module Module1
     Const CURSOR_LEFT = 1
     Const CURSOR_RIGHT = 2
     Const UNKNOWN_KEY = 99
+    Const PAUSE_TASTE = 3
 
     Const SPALTE_MAX = 79
     Const ZEILE_MAX = 24
@@ -21,8 +23,8 @@ Module Module1
 
     Const MENUE_SPALTE = 5
     Const MENUE_ZEILE = 3
-    Const INHALT_SPALTE = 36
-    Const INHALT_ZEILE = 3
+    'Const INHALT_SPALTE = 36
+    'Const INHALT_ZEILE = 3
 
     'Globale Variablen:
     Dim v_spielername As String
@@ -39,15 +41,15 @@ Module Module1
                 Return CURSOR_LEFT
             ElseIf cki.Key = ConsoleKey.RightArrow Then
                 Return CURSOR_RIGHT
+            ElseIf cki.Key = ConsoleKey.P Then
+                Return PAUSE_TASTE
             Else
                 Return UNKNOWN_KEY
             End If
         End If
     End Function
 
-
     Sub ZeilenErzeugung(ByRef Zeile() As Char, ByVal a_max As Integer)
-
         'Deklarieren der Variablen
         Dim a As Integer    'Anzahl der Hindernisblocks
         Dim X As Single
@@ -65,66 +67,70 @@ Module Module1
         Randomize()
         X = VBMath.Rnd
 
-        A = (a_max - A_MIN) * X + A_MIN
+        a = (a_max - A_MIN) * X + A_MIN
         'Console.WriteLine(A)
 
         'Für jeden der A Hindernisblocks:
-        For i = 1 To A
+        For i = 1 To a
 
             'Größe G des Hindernisblocks zufällig ermitteln:
             Randomize()
             X = VBMath.Rnd
 
-            G = (G_MAX - G_MIN) * X + G_MIN
+            g = (G_MAX - G_MIN) * X + G_MIN
             'console.WriteLine("G: " & G)
 
             'Startposition P des Hindernisblocks zufällig ermitteln:
             Randomize()
             X = VBMath.Rnd
 
-            P = (P_MAX - P_MIN) * X + P_MIN
+            p = (P_MAX - P_MIN) * X + P_MIN
             'Console.WriteLine("P: " & P)
 
             'Für jedes der G Einzelhindernisse:
-            For j = 1 To G
+            For j = 1 To g
 
                 'Prüfen ob Hinderniss innerhalb des Wertebereichs ist
-                If P + j - 1 <= SPALTE_MAX Then
+                If p + j - 1 <= SPALTE_MAX Then
 
                     'Hinderniss an Position P+j-1 in den Zeilenvektor eintragen
-                    Zeile(P + j - 1) = "X"
-
+                    Zeile(p + j - 1) = "X"
                 End If
-
             Next
-
         Next
-
-        ''Ausgabe zum Test
-        'For i = 0 To SPALTE_MAX
-        '    Console.Write(Zeile(i))
-        'Next
-        'Console.WriteLine()
-
-
     End Sub
 
-    Sub GameOver()
+    Sub GameOver(ByVal punkte As Integer)
 
-        Console.BackgroundColor = ConsoleColor.Red
-        Console.ForegroundColor = ConsoleColor.White
+        Dim game_over_text As ConsoleKeyInfo
+        Console.BackgroundColor = ConsoleColor.DarkBlue
 
         Console.Clear()
 
-        Console.SetCursorPosition(0, 10)
+        Console.SetCursorPosition(0, ZEILE_MAX / 2 - 5)
 
+        Console.WriteLine(" _____                  _____             ")
+        Console.WriteLine("|   __|___ _____ ___   |     |_ _ ___ ___ ")
+        Console.WriteLine("|  |  | .'|     | -_|  |  |  | | | -_|  _|")
+        Console.WriteLine("|_____|__,|_|_|_|___|  |_____|\_/|___|_|  ")
 
-        Console.WriteLine(" _____ ____  _      _____   ____  _     _____ ____   ")
-        Console.WriteLine("/  __//  _ \/ \__/|/  __/  /  _ \/ \ |\/  __//  __\  ")
-        Console.WriteLine("| |  _| / \|| |\/|||  \    | / \|| | //|  \  |  \/|  ")
-        Console.WriteLine("| |_//| |-||| |  |||  /_   | \_/|| \// |  /_ |    /  ")
-        Console.WriteLine("\____\\_/ \|\_/  \|\____\  \____/\__/  \____\\_/\_\  ")
-        Console.ReadLine()
+        Console.WriteLine()
+        Console.WriteLine("Du hast leider verloren," & v_spielername & "!")
+        Console.WriteLine("Dein Punktestand: " & punkte)
+        Console.WriteLine("Schwierigkeit: " & v_schwierigkeit)
+        Console.WriteLine()
+        Console.WriteLine("[1] Nochmal spielen")
+        Console.WriteLine("[2] Zum Hauptmenü")
+
+        'Benutzereingabe einlesen
+        game_over_text = Console.ReadKey(True)
+        If game_over_text.KeyChar = "1" Then
+            Spielablauf()
+            Exit Sub
+        ElseIf game_over_text.KeyChar = "2" Then
+            Hauptmenue()
+            Exit Sub
+        End If
     End Sub
 
     Sub Startbildschirm()
@@ -134,7 +140,6 @@ Module Module1
         Console.Clear()
 
         Console.SetCursorPosition(0, 0)
-
 
         Console.WriteLine(" _______  __   __  _______  _______  ______    ")
         Console.WriteLine("|       ||  | |  ||       ||       ||    _ |   ")
@@ -161,23 +166,18 @@ Module Module1
         Console.WriteLine(" _____| ||       ||   |  | | |     | |   |  |     | |   _   ||       |")
         Console.WriteLine("|_______||_______||___|  |_|  |___|  |___|   |___|  |__| |__||_______|")
 
-
         Console.ReadLine()
-
     End Sub
 
 
     Sub SpielerAuswahl()
-
         Dim spieler_auswahl As ConsoleKeyInfo
-
         Do
-
             Console.Clear()
 
-            Console.SetCursorPosition(SPALTE_MAX / 2, ZEILE_MAX / 2)
+            Console.SetCursorPosition(SPALTE_MAX / 2, 0)
 
-            Console.WriteLine("SPIELERAUSWAHL:")
+            Console.WriteLine("___________SPIELERAUSWAHL____________")
             Console.WriteLine()
 
             Console.WriteLine("[1] Neuer Spieler")
@@ -215,26 +215,21 @@ Module Module1
 
                 Exit Do
 
-
             Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
                 Console.ReadKey(True)
-
             End If
         Loop
-
     End Sub
 
     Sub Hauptmenue()
-
         Dim menü_auswahl As ConsoleKeyInfo
         Dim schwierigkeit_auswahl As ConsoleKeyInfo
-
         Do
             Console.Clear()
 
             'Titel des Spiels ausgeben:
             Console.SetCursorPosition(SPALTE_MAX / 2 - 5, 0)
-            Console.WriteLine("SUPER MARIO SURVIVAL")
+            Console.WriteLine("___________SUPER MARIO SURVIVAL__________")
 
             'Menueoptionen ausgeben:
             Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE)
@@ -266,7 +261,6 @@ Module Module1
             menü_auswahl = Console.ReadKey(True)
 
             If menü_auswahl.KeyChar = "1" Then
-
                 Do
                     'Schwerigkeitliste anzeigen
                     Console.SetCursorPosition(0, 18)
@@ -296,13 +290,11 @@ Module Module1
 
                     Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Schwierigkeit.")
                         Console.ReadKey(True)
-
                     End If
                 Loop
 
                 'Spiel starten:
                 Spielablauf()
-
             End If
 
             'Anleitung aufrufen
@@ -327,16 +319,10 @@ Module Module1
                 Console.ReadLine()
                 End
             End If
-
         Loop
-
     End Sub
 
-
-
     Sub Anleitung()
-
-
         Console.SetCursorPosition(0, 18)
 
         Console.WriteLine("__ANLEITUNG__")
@@ -350,10 +336,8 @@ Module Module1
         Console.WriteLine("::::::::::")
         Console.WriteLine()
 
-
         Console.WriteLine("Zum Zurueckkehren Enter drücken")
         Console.ReadLine()
-
     End Sub
 
     Sub Highscores()
@@ -361,8 +345,6 @@ Module Module1
 
         Console.WriteLine("HIGHSCORES:")
         Console.WriteLine()
-
-
 
         Console.WriteLine()
         Console.WriteLine("Zum Zurueckkehren Enter drücken")
@@ -391,10 +373,8 @@ Module Module1
         Console.WriteLine("[2] Sound AUS")
         Console.WriteLine()
 
-
         'Benutzereingabe einlesen
         einstellungs_auswahl = Console.ReadKey(True)
-
 
         'Auswahl prüfen und entsprechend reagieren
         If einstellungs_auswahl.KeyChar = "1" Then
@@ -406,15 +386,10 @@ Module Module1
         Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
         End If
 
-
         Console.WriteLine()
         Console.WriteLine("Zum Zurueckkehren Enter drücken")
         Console.ReadLine()
-
-
     End Sub
-
-
 
     Sub Spielablauf()
         Dim leben As Integer
@@ -427,6 +402,7 @@ Module Module1
         Dim wartezeit As Single
         Dim a_max As Single
         Dim punkte As Integer
+        Dim k As Integer
 
         'Startwerte setzen
         leben = 5
@@ -436,15 +412,13 @@ Module Module1
         a_max = A_MAX_Start
 
         'Schwierigkeitseinstellung anpassen:
-
         If v_schwierigkeit = "Medium" Then
-            wartezeit = wartezeit * 0.75
-            a_max = a_max * 1.5
+            wartezeit = wartezeit - 20
+            a_max = a_max + 1
         ElseIf v_schwierigkeit = "Hard" Then
-            wartezeit = wartezeit * 0.5
-            a_max = a_max * 2
+            wartezeit = wartezeit - 40
+            a_max = a_max + 2
         End If
-
 
         'Countdown vor Spielbeginn:
         Console.Clear()
@@ -473,15 +447,13 @@ Module Module1
         Threading.Thread.Sleep(1000)
         Console.Clear()
 
-
-
         'Hauptschleife des Spiels
         Do
             'neue Zeile erzeugen
             ZeilenErzeugung(Zeile, a_max)
 
             'Alle Zeilen des Spielfelds um eine Zeile nach unten verschieben
-            'Rückwärtschleife über zeilen
+            'Rückwärtschleife über Zeilen
             For z = ZEILE_MAX To 1 Step -1
                 'Vorwärtschleife über Spalten
                 For s = 0 To SPALTE_MAX
@@ -495,10 +467,25 @@ Module Module1
                 spielfeld(0, s) = Zeile(s)
             Next
 
-            'Spielfeld auf der Konsole ausgeben
+            'Player auf der Konsole ausgeben
             Console.SetCursorPosition(0, 0)
-            Console.Write("Player: " & v_spielername & "   Schwierigkeit: " & v_schwierigkeit & "   Punkte:" & punkte)
+            Console.Write("Player: " & v_spielername)
 
+            'Informationen zur Schwierigkeitausgeben:
+            If v_schwierigkeit = "Easy" Then
+                Console.ForegroundColor = ConsoleColor.Green
+            ElseIf v_schwierigkeit = "Medium" Then
+                Console.ForegroundColor = ConsoleColor.Yellow
+            ElseIf v_schwierigkeit = "Hard" Then
+                Console.ForegroundColor = ConsoleColor.Red
+            End If
+            Console.Write("   Schwierigkeit: " & v_schwierigkeit)
+            Console.ForegroundColor = ConsoleColor.White
+
+            'Informationen zum Punktestand ausgeben:
+            Console.Write("   Punkte:" & punkte)
+
+            'Spielfeld auf der Konsole ausgeben:
             For z = 0 To ZEILE_MAX - 2
                 For s = 0 To SPALTE_MAX
                     Console.Write(spielfeld(z, s))
@@ -517,15 +504,12 @@ Module Module1
                 Console.Write(" ")
 
                 'Position der Spielfigur berechnen:
-
                 If taste = CURSOR_LEFT Then
                     spielfigur_spalte = spielfigur_spalte - 1
                     If spielfigur_spalte < 0 Then
                         spielfigur_spalte = 0
                     End If
                 End If
-
-
 
                 If taste = CURSOR_RIGHT Then
                     spielfigur_spalte = spielfigur_spalte + 1
@@ -536,27 +520,62 @@ Module Module1
 
                 'Spielfigur auf der Konsole ausgeben: 
                 Console.SetCursorPosition(spielfigur_spalte, ZEILE_MAX - 1)  'Zeile und Spalte anders als bei Matrix
-                Console.Write("#")
+                Console.Write("☻")
 
                 'Kollision prüfen:
                 If spielfeld(ZEILE_MAX - 2, spielfigur_spalte) = "X" Then
                     'Kollision erkannt:
                     leben = leben - 1
+
+                    'Sound abspielen:
                     Console.Beep()
 
-                    'Hindernis lösschen:
+                    'Bildschirm rot aufblitzen lassen:
+                    Console.BackgroundColor = ConsoleColor.Red
+                    Console.Clear()
+                    Threading.Thread.Sleep(10)
+                    Console.Clear()
+                    Console.BackgroundColor = ConsoleColor.DarkCyan
+
+                    'Hindernis löschen:
                     spielfeld(22, spielfigur_spalte) = " "
                 End If
 
-
                 'Anzeige der Leben-Anzahl:
                 Console.SetCursorPosition(0, ZEILE_MAX - 1)
-                Console.Write("Leben: " & leben & " ")
-
+                Console.Write("Leben: ")
+                For k = 1 To leben
+                    Console.Write("♥")
+                Next
 
                 'Warten
                 Threading.Thread.Sleep(wartezeit / BEWEGUNG_SPIELFIGUR)
             Next
+
+            'Pausefunktion:
+            If taste = PAUSE_TASTE Then
+                Console.SetCursorPosition(SPALTE_MAX / 2 - 3, ZEILE_MAX / 2)
+                Console.WriteLine("PAUSIERT")
+
+                Console.SetCursorPosition(0, ZEILE_MAX - 1)
+                Console.Write("Zum Fortfahren P drücken")
+
+                ''Tastaturpuffer leeren:
+                'Do
+                '    taste = Tastatur_Abfrage()
+                'Loop Until taste = NO_KEY
+
+                'Auf P warten:
+                Do
+                    taste = Tastatur_Abfrage()
+                Loop Until taste = PAUSE_TASTE
+
+                'Pausetext löschen:
+                Console.SetCursorPosition(SPALTE_MAX / 2 - 3, ZEILE_MAX / 2)
+                Console.WriteLine("         ")
+                Console.SetCursorPosition(0, ZEILE_MAX - 1)
+                Console.Write("                          ")
+            End If
 
             'Tastaturpuffer leeren:
             Do
@@ -579,9 +598,7 @@ Module Module1
 
         Loop Until leben <= 0
 
-        GameOver()
-
-
+        GameOver(punkte)
     End Sub
 
     Sub Main()
@@ -595,12 +612,9 @@ Module Module1
         'Sound an:
         v_sound_an = True
 
-
         Startbildschirm()
         SpielerAuswahl()
         Hauptmenue()
 
-
     End Sub
-
 End Module
