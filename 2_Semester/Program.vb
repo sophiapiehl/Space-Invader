@@ -19,6 +19,11 @@ Module Module1
 
     Const BEWEGUNG_SPIELFIGUR = 10
 
+    Const MENUE_SPALTE = 5
+    Const MENUE_ZEILE = 3
+    Const INHALT_SPALTE = 36
+    Const INHALT_ZEILE = 3
+
     'Globale Variablen:
     Dim v_spielername As String
     Dim v_schwierigkeit As String
@@ -39,6 +44,8 @@ Module Module1
             End If
         End If
     End Function
+
+
     Sub ZeilenErzeugung(ByRef Zeile() As Char, ByVal a_max As Integer)
 
         'Deklarieren der Variablen
@@ -226,24 +233,34 @@ Module Module1
             Console.Clear()
 
             'Titel des Spiels ausgeben:
-            Console.SetCursorPosition(SPALTE_MAX / 2, 0)
-
+            Console.SetCursorPosition(SPALTE_MAX / 2 - 5, 0)
             Console.WriteLine("SUPER MARIO SURVIVAL")
 
-            'Spielernamen ausgeben:
-            Console.SetCursorPosition(0, 1)
-            Console.WriteLine("Player: " & v_spielername)
-
             'Menueoptionen ausgeben:
-            Console.SetCursorPosition(0, 10)
+            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE)
+            Console.WriteLine(" ---------------------------- ")
+            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE + 1)
+            Console.WriteLine("|           MENÜ             |")
+            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE + 2)
+            Console.WriteLine(" ---------------------------- ")
 
-            Console.WriteLine("HAUPTMENUE:")
-
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 4)
             Console.WriteLine("1. Spiel starten")
+
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 5)
             Console.WriteLine("2. Anleitung")
+
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 6)
             Console.WriteLine("3. Highscores")
+
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 7)
             Console.WriteLine("4. Einstellungen")
+
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 8)
             Console.WriteLine("5. Spiel verlassen")
+
+            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE + 10)
+            Console.WriteLine(" ---------------------------- ")
 
             'Benutzereingabe einlesen
             menü_auswahl = Console.ReadKey(True)
@@ -252,7 +269,7 @@ Module Module1
 
                 Do
                     'Schwerigkeitliste anzeigen
-                    Console.Clear()
+                    Console.SetCursorPosition(0, 18)
 
                     Console.WriteLine("SCHWIERIGKEITSAUSWAHL:")
                     Console.WriteLine()
@@ -315,11 +332,14 @@ Module Module1
 
     End Sub
 
+
+
     Sub Anleitung()
 
-        Console.Clear()
 
-        Console.WriteLine("ANLEITUNG:")
+        Console.SetCursorPosition(0, 18)
+
+        Console.WriteLine("__ANLEITUNG__")
         Console.WriteLine()
 
         Console.WriteLine("Ziel:")
@@ -337,7 +357,8 @@ Module Module1
     End Sub
 
     Sub Highscores()
-        Console.Clear()
+        Console.SetCursorPosition(0, 18)
+
         Console.WriteLine("HIGHSCORES:")
         Console.WriteLine()
 
@@ -352,7 +373,7 @@ Module Module1
 
         Dim einstellungs_auswahl As ConsoleKeyInfo
 
-        Console.Clear()
+        Console.SetCursorPosition(0, 18)
 
         Console.WriteLine("EINSTELLUNGEN:")
         Console.WriteLine()
@@ -424,6 +445,33 @@ Module Module1
             a_max = a_max * 2
         End If
 
+
+        'Countdown vor Spielbeginn:
+        Console.Clear()
+        Console.SetCursorPosition(SPALTE_MAX / 2 - 5, ZEILE_MAX / 2)
+        Console.WriteLine("READY?")
+        Console.ReadLine()
+        Console.Clear()
+
+        Console.SetCursorPosition(SPALTE_MAX / 2 - 5, ZEILE_MAX / 2)
+        Console.WriteLine("3")
+        Threading.Thread.Sleep(1000)
+        Console.Clear()
+
+        Console.SetCursorPosition(SPALTE_MAX / 2 - 5, ZEILE_MAX / 2)
+        Console.WriteLine("2")
+        Threading.Thread.Sleep(1000)
+        Console.Clear()
+
+        Console.SetCursorPosition(SPALTE_MAX / 2 - 5, ZEILE_MAX / 2)
+        Console.WriteLine("1")
+        Threading.Thread.Sleep(1000)
+        Console.Clear()
+
+        Console.SetCursorPosition(SPALTE_MAX / 2 - 5, ZEILE_MAX / 2)
+        Console.WriteLine("GO!")
+        Threading.Thread.Sleep(1000)
+        Console.Clear()
 
 
 
