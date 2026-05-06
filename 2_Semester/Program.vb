@@ -18,6 +18,12 @@ Module Module1
     Const P_MAX = SPALTE_MAX
 
     Const BEWEGUNG_SPIELFIGUR = 10
+
+    'Globale Variablen:
+    Dim v_spielername As String
+    Dim v_schwierigkeit As String
+    Dim v_sound_an As Boolean
+
     Function Tastatur_Abfrage() As Integer
         Dim cki As New ConsoleKeyInfo()
         If Console.KeyAvailable = False Then
@@ -36,11 +42,11 @@ Module Module1
     Sub ZeilenErzeugung(ByRef Zeile() As Char, ByVal a_max As Integer)
 
         'Deklarieren der Variablen
-        Dim A As Integer    'Anzahl der Hindernisblocks
+        Dim a As Integer    'Anzahl der Hindernisblocks
         Dim X As Single
         Dim i As Integer
-        Dim G As Integer    'Größe des Hindernisblocks
-        Dim P As Integer    'Position des Hindernisblocks
+        Dim g As Integer    'Größe des Hindernisblocks
+        Dim p As Integer    'Position des Hindernisblocks
 
 
         'Zeilenvektor mit Leerzeichen füllen:
@@ -96,22 +102,328 @@ Module Module1
 
     End Sub
 
+    Sub GameOver()
+
+        Console.BackgroundColor = ConsoleColor.Red
+        Console.ForegroundColor = ConsoleColor.White
+
+        Console.Clear()
+
+        Console.SetCursorPosition(0, 10)
+
+
+        Console.WriteLine(" _____ ____  _      _____   ____  _     _____ ____   ")
+        Console.WriteLine("/  __//  _ \/ \__/|/  __/  /  _ \/ \ |\/  __//  __\  ")
+        Console.WriteLine("| |  _| / \|| |\/|||  \    | / \|| | //|  \  |  \/|  ")
+        Console.WriteLine("| |_//| |-||| |  |||  /_   | \_/|| \// |  /_ |    /  ")
+        Console.WriteLine("\____\\_/ \|\_/  \|\____\  \____/\__/  \____\\_/\_\  ")
+        Console.ReadLine()
+    End Sub
+
+    Sub Startbildschirm()
+        Console.BackgroundColor = ConsoleColor.DarkCyan
+        Console.ForegroundColor = ConsoleColor.White
+
+        Console.Clear()
+
+        Console.SetCursorPosition(0, 0)
+
+
+        Console.WriteLine(" _______  __   __  _______  _______  ______    ")
+        Console.WriteLine("|       ||  | |  ||       ||       ||    _ |   ")
+        Console.WriteLine("|  _____||  | |  ||    _  ||    ___||   | ||   ")
+        Console.WriteLine("| |_____ |  |_|  ||   |_| ||   |___ |   |_||_  ")
+        Console.WriteLine("|_____  ||       ||    ___||    ___||    __  | ")
+        Console.WriteLine(" _____| ||       ||   |    |   |___ |   |  | | ")
+        Console.WriteLine("|_______||_______||___|    |_______||___|  |_| ")
+
+
+        Console.WriteLine(" __   __  _______  ______    ___   _______ ")
+        Console.WriteLine("|  |_|  ||   _   ||    _ |  |   | |       |")
+        Console.WriteLine("|       ||  |_|  ||   | ||  |   | |   _   |")
+        Console.WriteLine("|       ||       ||   |_||_ |   | |  | |  |")
+        Console.WriteLine("|       ||       ||    __  ||   | |  |_|  |")
+        Console.WriteLine("| ||_|| ||   _   ||   |  | ||   | |       |")
+        Console.WriteLine("|_|   |_||__| |__||___|  |_||___| |_______|")
+
+        Console.WriteLine(" _______  __   __  ______    __   __  ___   __   __  _______  ___     ")
+        Console.WriteLine("|       ||  | |  ||    _ |  |  | |  ||   | |  | |  ||   _   ||   |    ")
+        Console.WriteLine("|  _____||  | |  ||   | ||  |  |_|  ||   | |  |_|  ||  |_|  ||   |    ")
+        Console.WriteLine("| |_____ |  |_|  ||   |_||_ |       ||   | |       ||       ||   |    ")
+        Console.WriteLine("|_____  ||       ||    __  ||       ||   | |       ||       ||   |___ ")
+        Console.WriteLine(" _____| ||       ||   |  | | |     | |   |  |     | |   _   ||       |")
+        Console.WriteLine("|_______||_______||___|  |_|  |___|  |___|   |___|  |__| |__||_______|")
+
+
+        Console.ReadLine()
+
+    End Sub
+
+
+    Sub SpielerAuswahl()
+
+        Dim spieler_auswahl As ConsoleKeyInfo
+
+        Do
+
+            Console.Clear()
+
+            Console.SetCursorPosition(SPALTE_MAX / 2, ZEILE_MAX / 2)
+
+            Console.WriteLine("SPIELERAUSWAHL:")
+            Console.WriteLine()
+
+            Console.WriteLine("[1] Neuer Spieler")
+            Console.WriteLine()
+
+            Console.WriteLine("[2] Vorhandenen Spieler wählen")
+            Console.WriteLine()
+
+            'Benutzereingabe einlesen:
+            spieler_auswahl = Console.ReadKey(True)
+
+            'Benutzereingabe prüfen und entsprechend reagieren:
+            If spieler_auswahl.KeyChar = "1" Then
+                Console.Clear()
+
+                Console.WriteLine("Geben Sie Ihren Namen ein:")
+                v_spielername = Console.ReadLine()
+
+                Console.WriteLine()
+
+                Console.WriteLine("Willkommen, " & v_spielername & "!")
+                Console.WriteLine()
+                Console.WriteLine("Zum Fortfahren Enter drücken")
+                Console.ReadKey(True)
+
+                Exit Do
+
+            ElseIf spieler_auswahl.KeyChar = "2" Then
+                Console.Clear()
+                Console.WriteLine("Diese Funktion ist noch nicht verfügbar.")
+                Console.WriteLine()
+
+                Console.WriteLine("Zum Fortfahren Enter drücken")
+                Console.ReadKey(True)
+
+                Exit Do
+
+
+            Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
+                Console.ReadKey(True)
+
+            End If
+        Loop
+
+    End Sub
+
+    Sub Hauptmenue()
+
+        Dim menü_auswahl As ConsoleKeyInfo
+        Dim schwierigkeit_auswahl As ConsoleKeyInfo
+
+        Do
+            Console.Clear()
+
+            'Titel des Spiels ausgeben:
+            Console.SetCursorPosition(SPALTE_MAX / 2, 0)
+
+            Console.WriteLine("SUPER MARIO SURVIVAL")
+
+            'Spielernamen ausgeben:
+            Console.SetCursorPosition(0, 1)
+            Console.WriteLine("Player: " & v_spielername)
+
+            'Menueoptionen ausgeben:
+            Console.SetCursorPosition(0, 10)
+
+            Console.WriteLine("HAUPTMENUE:")
+
+            Console.WriteLine("1. Spiel starten")
+            Console.WriteLine("2. Anleitung")
+            Console.WriteLine("3. Highscores")
+            Console.WriteLine("4. Einstellungen")
+            Console.WriteLine("5. Spiel verlassen")
+
+            'Benutzereingabe einlesen
+            menü_auswahl = Console.ReadKey(True)
+
+            If menü_auswahl.KeyChar = "1" Then
+
+                Do
+                    'Schwerigkeitliste anzeigen
+                    Console.Clear()
+
+                    Console.WriteLine("SCHWIERIGKEITSAUSWAHL:")
+                    Console.WriteLine()
+
+                    Console.WriteLine("[1] Easy")
+                    Console.WriteLine("[2] Medium")
+                    Console.WriteLine("[3] Hard")
+
+                    'Benutzereingabe einlesen
+                    schwierigkeit_auswahl = Console.ReadKey(True)
+
+                    'Auswahl der Schwierigkeit prüfen und in Variable speichern
+                    If schwierigkeit_auswahl.KeyChar = "1" Then
+                        v_schwierigkeit = "Easy"
+                        Exit Do
+
+                    ElseIf schwierigkeit_auswahl.KeyChar = "2" Then
+                        v_schwierigkeit = "Medium"
+                        Exit Do
+
+                    ElseIf schwierigkeit_auswahl.KeyChar = "3" Then
+                        v_schwierigkeit = "Hard"
+                        Exit Do
+
+                    Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Schwierigkeit.")
+                        Console.ReadKey(True)
+
+                    End If
+                Loop
+
+                'Spiel starten:
+                Spielablauf()
+
+            End If
+
+            'Anleitung aufrufen
+            If menü_auswahl.KeyChar = "2" Then
+                Anleitung()
+            End If
+
+            'Highscore liste aufrufen:
+            If menü_auswahl.KeyChar = "3" Then
+                Highscores()
+            End If
+
+            'Einstellungen aufrufen:
+            If menü_auswahl.KeyChar = "4" Then
+                Einstellungen()
+            End If
+
+            'Spiel verlassen
+            If menü_auswahl.KeyChar = "5" Then
+                Console.Clear()
+                Console.WriteLine("Danke fürs Spielen! Auf Wiedersehen!")
+                Console.ReadLine()
+                End
+            End If
+
+        Loop
+
+    End Sub
+
+    Sub Anleitung()
+
+        Console.Clear()
+
+        Console.WriteLine("ANLEITUNG:")
+        Console.WriteLine()
+
+        Console.WriteLine("Ziel:")
+        Console.WriteLine("::::::::::")
+        Console.WriteLine()
+
+        Console.WriteLine("Steuerung:")
+        Console.WriteLine("::::::::::")
+        Console.WriteLine()
+
+
+        Console.WriteLine("Zum Zurueckkehren Enter drücken")
+        Console.ReadLine()
+
+    End Sub
+
+    Sub Highscores()
+        Console.Clear()
+        Console.WriteLine("HIGHSCORES:")
+        Console.WriteLine()
+
+
+
+        Console.WriteLine()
+        Console.WriteLine("Zum Zurueckkehren Enter drücken")
+        Console.ReadLine()
+    End Sub
+
+    Sub Einstellungen()
+
+        Dim einstellungs_auswahl As ConsoleKeyInfo
+
+        Console.Clear()
+
+        Console.WriteLine("EINSTELLUNGEN:")
+        Console.WriteLine()
+
+        'Anzeigen ob Sound an oder aus
+        If v_sound_an = True Then
+            Console.WriteLine("Aktueller Status: SOUND AKTIV")
+
+        Else Console.WriteLine("Aktueller Status: SOUND AUS")
+        End If
+        Console.WriteLine()
+
+        'Menü zur Soundeinstellung
+        Console.WriteLine("[1] Sound AN")
+        Console.WriteLine("[2] Sound AUS")
+        Console.WriteLine()
+
+
+        'Benutzereingabe einlesen
+        einstellungs_auswahl = Console.ReadKey(True)
+
+
+        'Auswahl prüfen und entsprechend reagieren
+        If einstellungs_auswahl.KeyChar = "1" Then
+            v_sound_an = True
+            Console.WriteLine("Sound ist AN.")
+        ElseIf einstellungs_auswahl.KeyChar = "2" Then
+            v_sound_an = False
+            Console.WriteLine("Sound ist AUS.")
+        Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
+        End If
+
+
+        Console.WriteLine()
+        Console.WriteLine("Zum Zurueckkehren Enter drücken")
+        Console.ReadLine()
+
+
+    End Sub
+
+
+
     Sub Spielablauf()
         Dim leben As Integer
         Dim spielfeld(ZEILE_MAX, SPALTE_MAX) As Char
-        Dim Zeile(SPALTE_MAX) As Char
+        Dim zeile(SPALTE_MAX) As Char
         Dim z As Integer
         Dim s As Integer
         Dim taste As Integer
         Dim spielfigur_spalte As Integer
         Dim wartezeit As Single
         Dim a_max As Single
+        Dim punkte As Integer
 
         'Startwerte setzen
         leben = 5
+        punkte = 0
         spielfigur_spalte = SPALTE_MAX \ 2
         wartezeit = 200
         a_max = A_MAX_Start
+
+        'Schwierigkeitseinstellung anpassen:
+
+        If v_schwierigkeit = "Medium" Then
+            wartezeit = wartezeit * 0.75
+            a_max = a_max * 1.5
+        ElseIf v_schwierigkeit = "Hard" Then
+            wartezeit = wartezeit * 0.5
+            a_max = a_max * 2
+        End If
+
 
 
 
@@ -137,6 +449,8 @@ Module Module1
 
             'Spielfeld auf der Konsole ausgeben
             Console.SetCursorPosition(0, 0)
+            Console.Write("Player: " & v_spielername & "   Schwierigkeit: " & v_schwierigkeit & "   Punkte:" & punkte)
+
             For z = 0 To ZEILE_MAX - 2
                 For s = 0 To SPALTE_MAX
                     Console.Write(spielfeld(z, s))
@@ -212,31 +526,32 @@ Module Module1
             'Console.SetCursorPosition(38, ZEILE_MAX)
             'Console.Write("Hindernisdichte: " & a_max)
 
+            'Punkte erhöhen:
+            punkte = punkte + 1
 
         Loop Until leben <= 0
 
-        Console.BackgroundColor = ConsoleColor.Red
-        Console.ForegroundColor = ConsoleColor.White
-
-        Console.Clear()
-
-        Console.SetCursorPosition(0, 10)
-
-        Console.WriteLine(" _____ ____  _      _____   ____  _     _____ ____   ")
-        Console.WriteLine("/  __//  _ \/ \__/|/  __/  /  _ \/ \ |\/  __//  __\  ")
-        Console.WriteLine("| |  _| / \|| |\/|||  \    | / \|| | //|  \  |  \/|  ")
-        Console.WriteLine("| |_//| |-||| |  |||  /_   | \_/|| \// |  /_ |    /  ")
-        Console.WriteLine("\____\\_/ \|\_/  \|\____\  \____/\__/  \____\\_/\_\  ")
-
-        Console.ReadLine()
+        GameOver()
 
 
     End Sub
 
     Sub Main()
 
+        'Konsolenfenster einstellen:
+
+
+        'Cursor unsichtbar machen:
         Console.CursorVisible = False
-        Spielablauf()
+
+        'Sound an:
+        v_sound_an = True
+
+
+        Startbildschirm()
+        SpielerAuswahl()
+        Hauptmenue()
+
 
     End Sub
 
