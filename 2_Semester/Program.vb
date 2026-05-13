@@ -31,6 +31,14 @@ Module Module1
     Dim v_schwierigkeit As String
     Dim v_sound_an As Boolean
 
+    'Liste für alle Spieler
+    Dim v_spielerNamen As New List(Of String)
+    Dim v_spielerScores As New List(Of Integer)
+    Dim v_spielerDatum As New List(Of String)
+
+    'Speicherdatei
+    Dim v_datei_spieler As String = "spieler.txt"
+
     Function Tastatur_Abfrage() As Integer
         Dim cki As New ConsoleKeyInfo()
         If Console.KeyAvailable = False Then
@@ -117,6 +125,17 @@ Module Module1
         Console.WriteLine()
         Console.WriteLine("Du hast leider verloren," & v_spielername & "!")
         Console.WriteLine("Dein Punktestand: " & punkte)
+        'Highscore aktualisieren:
+        Dim index As Integer = v_spielerNamen.IndexOf(v_spielername)
+
+        If index >= 0 Then
+            If punkte > 0 And punkte > v_spielerScores(index) Then
+                v_spielerScores(index) = punkte
+                v_spielerDatum(index) = DateTime.Now.ToString("dd.MM.yyyy")
+                SpeichereSpieler()
+            End If
+        End If
+
         Console.WriteLine("Schwierigkeit: " & v_schwierigkeit)
         Console.WriteLine()
         Console.WriteLine("[1] Nochmal spielen")
@@ -194,10 +213,22 @@ Module Module1
                 Console.Clear()
 
                 Console.WriteLine("Geben Sie Ihren Namen ein:")
-                v_spielername = Console.ReadLine()
+                Dim name As String = Console.ReadLine()
 
+                'Prüfen auf existenz des Namens
+                If v_spielerNamen.Contains(name) Then
+                    Console.WriteLine("Dieser Spieler existiert bereits.")
+                    Console.ReadKey(True)
+                    Continue Do
+                End If
+
+                'Neuer Spieler anlegen:
+                v_spielerNamen.Add(name)
+                v_spielerScores.Add(0)
+                v_spielerDatum.Add(DateTime.Now.ToString("dd.MM.yyyy"))
+
+                v_spielername = name
                 Console.WriteLine()
-
                 Console.WriteLine("Willkommen, " & v_spielername & "!")
                 Console.WriteLine()
                 Console.WriteLine("Zum Fortfahren Enter drücken")
@@ -207,16 +238,45 @@ Module Module1
 
             ElseIf spieler_auswahl.KeyChar = "2" Then
                 Console.Clear()
-                Console.WriteLine("Diese Funktion ist noch nicht verfügbar.")
+
+                If v_spielerNamen.Count = 0 Then
+                    Console.WriteLine("Es sind keine Spieler vorhanden. Bitte legen Sie einen neuen Spieler an.")
+                    Console.ReadKey(True)
+                    Continue Do
+                End If
+
+                Console.WriteLine("Hinterlegte Spieler:")
                 Console.WriteLine()
+
+                For i = 0 To v_spielerNamen.Count - 1
+                    Console.WriteLine("[" & i + 1 & "] " & v_spielerNamen(i))
+                Next
+
+                Console.WriteLine()
+                Console.WriteLine("Geben Sie die Nummer des gewünschten Spielers ein:")
+
+                Dim eingabe As String = Console.ReadLine()
+                Dim nr As Integer
+
+                If Integer.TryParse(eingabe, nr) Then
+                    nr -= 1
+                    If nr >= 0 And nr < v_spielerNamen.Count Then
+                        v_spielername = v_spielerNamen(nr)
+                    Else
+                        Console.WriteLine("Ungültige Nummer. Bitte wählen Sie eine gültige Nummer.")
+                        Console.ReadKey(True)
+                        Continue Do
+                    End If
+                Else
+                    Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
+                    Console.ReadKey(True)
+                    Continue Do
+                End If
 
                 Console.WriteLine("Zum Fortfahren Enter drücken")
                 Console.ReadKey(True)
 
                 Exit Do
-
-            Else Console.WriteLine("Ungültige Eingabe. Bitte wählen Sie eine gültige Option.")
-                Console.ReadKey(True)
             End If
         Loop
     End Sub
@@ -252,9 +312,12 @@ Module Module1
             Console.WriteLine("4. Einstellungen")
 
             Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 8)
-            Console.WriteLine("5. Spiel verlassen")
+            Console.WriteLine("5. Charakter wechseln")
 
-            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE + 10)
+            Console.SetCursorPosition(MENUE_SPALTE + 2, MENUE_ZEILE + 9)
+            Console.WriteLine("6. Spiel verlassen")
+
+            Console.SetCursorPosition(MENUE_SPALTE, MENUE_ZEILE + 11)
             Console.WriteLine(" ---------------------------- ")
 
             'Benutzereingabe einlesen
@@ -312,8 +375,13 @@ Module Module1
                 Einstellungen()
             End If
 
-            'Spiel verlassen
+            'Charakter wechseln
             If menü_auswahl.KeyChar = "5" Then
+                SpielerAuswahl()
+            End If
+
+            'Spiel verlassen
+            If menü_auswahl.KeyChar = "6" Then
                 Console.Clear()
                 Console.WriteLine("Danke fürs Spielen! Auf Wiedersehen!")
                 Console.ReadLine()
@@ -341,11 +409,42 @@ Module Module1
     End Sub
 
     Sub Highscores()
-        Console.SetCursorPosition(0, 18)
-
+        Console.Clear()
         Console.WriteLine("HIGHSCORES:")
         Console.WriteLine()
 
+        Console.SetCursorPosition(0, 18)
+
+        If v_spielerNamen.Count = 0 Then
+            Console.WriteLine("Es sind noch keine Highscores vorhanden.")
+            Console.ReadLine()
+            Exit Sub
+        End If
+        'Sortieren mit bubble Sort:
+
+        For i = 0 To v_spielerScores.Count - 2
+            For j = 0 To v_spielerScores.Count - 2 - i
+                If v_spielerScores(j) < v_spielerScores(j + 1) Then
+                    'Punkte tauschen
+                    Dim tempScore As Integer = v_spielerScores(j)
+                    v_spielerScores(j) = v_spielerScores(j + 1)
+                    v_spielerScores(j + 1) = tempScore
+                    'Namen tauschen
+                    Dim tempName As String = v_spielerNamen(j)
+                    v_spielerNamen(j) = v_spielerNamen(j + 1)
+                    v_spielerNamen(j + 1) = tempName
+                    'Datum tauschen
+                    Dim tempDatum As String = v_spielerDatum(j)
+                    v_spielerDatum(j) = v_spielerDatum(j + 1)
+                    v_spielerDatum(j + 1) = tempDatum
+                End If
+            Next
+        Next
+        For i = 0 To v_spielerNamen.Count - 1
+            If v_spielerScores(i) > 0 Then
+                Console.WriteLine(v_spielerNamen(i) & " - " & v_spielerScores(i) & " Punkte - " & v_spielerDatum(i))
+            End If
+        Next
         Console.WriteLine()
         Console.WriteLine("Zum Zurueckkehren Enter drücken")
         Console.ReadLine()
@@ -601,6 +700,30 @@ Module Module1
         GameOver(punkte)
     End Sub
 
+    Sub LadeSpieler()
+        If IO.File.Exists(v_datei_spieler) = False Then Exit Sub
+
+        Dim zeilen() As String = IO.File.ReadAllLines(v_datei_spieler)
+
+        For Each z In zeilen
+            Dim teile() As String = z.Split(";"c)
+            If teile.Length = 3 Then
+                v_spielerNamen.Add(teile(0))
+                v_spielerScores.Add(CInt(teile(1)))
+                v_spielerDatum.Add(teile(2))
+            End If
+        Next
+    End Sub
+
+    Sub SpeichereSpieler()
+        Dim liste As New List(Of String)
+
+        For i = 0 To v_spielerNamen.Count - 1
+            liste.Add(v_spielerNamen(i) & ";" & v_spielerScores(i) & ";" & v_spielerDatum(i))
+        Next
+
+        IO.File.WriteAllLines(v_datei_spieler, liste.ToArray())
+    End Sub
     Sub Main()
 
         'Konsolenfenster einstellen:
@@ -611,6 +734,8 @@ Module Module1
 
         'Sound an:
         v_sound_an = True
+
+        LadeSpieler()
 
         Startbildschirm()
         SpielerAuswahl()
